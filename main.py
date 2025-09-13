@@ -49,7 +49,7 @@ def generate_problem():
     y = 10 - x
     z = random.randint(1, 9)
     nums = [x, y, z]
-    random.shuffle(nums)  # 위치 섞기
+    random.shuffle(nums)
     return nums[0], nums[1], nums[2], sum(nums)
 
 def make10_hint(a, b, c):
@@ -62,54 +62,33 @@ def make10_hint(a, b, c):
     return "👉 두 수를 먼저 더해서 10을 만들어 보세요!"
 
 # ===== 세션 상태 초기화 =====
-st.session_state.setdefault("problems", [generate_problem() for _ in range(4)])
-st.session_state.setdefault("answers", [""] * 4)
-st.session_state.setdefault("checked", False)
-st.session_state.setdefault("round", 0)  
-st.session_state.setdefault("results", {})  # 학생별 결과 저장 dict
+if "problems" not in st.session_state:
+    st.session_state["problems"] = [generate_problem() for _ in range(4)]
+if "answers" not in st.session_state:
+    st.session_state["answers"] = [""] * 4
+if "checked" not in st.session_state:
+    st.session_state["checked"] = False
+if "round" not in st.session_state:
+    st.session_state["round"] = 0
+if "results" not in st.session_state:
+    st.session_state["results"] = {}   # 학생별 결과 저장 dict
 
 # ===== 문제 표시 =====
-for i, (a, b, c, answer) in enumerate(st.session_state.problems):
+for i, (a, b, c, answer) in enumerate(st.session_state["problems"]):
     st.markdown(f'<p class="problem-font">{i+1}: {a} + {b} + {c} = ?</p>', unsafe_allow_html=True)
-    st.session_state.answers[i] = st.text_input(
+    st.session_state["answers"][i] = st.text_input(
         f"{i+1}번 답",
-        value=st.session_state.answers[i],
-        key=f"q{i}_{st.session_state.round}"
+        value=st.session_state["answers"][i],
+        key=f"q{i}_{st.session_state['round']}"
     )
 
 # ===== 채점하기 =====
 if st.button("✅ 채점하기") and student_id.strip() != "":
-    st.session_state.checked = True
+    st.session_state["checked"] = True
 
-if st.session_state.checked and student_id.strip() != "":
+if st.session_state["checked"] and student_id.strip() != "":
     score = 0
     attempt_results = []
 
-    for i, (a, b, c, answer) in enumerate(st.session_state.problems):
-        user_ans = st.session_state.answers[i]
-        correct = user_ans.strip().isdigit() and int(user_ans) == answer
-
-        if correct:
-            st.success(f"{i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
-            score += 1
-        else:
-            st.error(f"{i+1}: 틀렸어요 😢 (정답: {answer})")
-
-        st.info(make10_hint(a, b, c))
-
-        # 시도 기록 저장
-        attempt_results.append({
-            "문제번호": i+1,
-            "문제": f"{a}+{b}+{c}",
-            "학생답": user_ans,
-            "정답": answer,
-            "채점": "O" if correct else "X"
-        })
-
-    st.markdown(f'<p class="big-font">👉 총점: {score} / 4</p>', unsafe_allow_html=True)
-
-    # 학생별 기록 저장
-    if student_id not in st.session_state.results:
-        st.session_state.results[student_id] = []
-
-    st.session_state.re_
+    for i, (a, b, c, answer) in enumerate(st.session_state["problems"]):
+        user_ans = st.session_state
