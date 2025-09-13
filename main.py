@@ -56,39 +56,4 @@ def make10_hint(a, b, c):
     nums = [a, b, c]
     for i in range(3):
         for j in range(i+1, 3):
-            if nums[i] + nums[j] == 10:
-                rest = [n for k, n in enumerate(nums) if k not in [i, j]][0]
-                return f"👉 {nums[i]} + {nums[j]} = 10, 그리고 10 + {rest} = {10+rest}"
-    return "👉 두 수를 먼저 더해서 10을 만들어 보세요!"
-
-# ===== 세션 상태 초기화 =====
-if "problems" not in st.session_state:
-    st.session_state["problems"] = [generate_problem() for _ in range(4)]
-if "answers" not in st.session_state:
-    st.session_state["answers"] = [""] * 4
-if "checked" not in st.session_state:
-    st.session_state["checked"] = False
-if "round" not in st.session_state:
-    st.session_state["round"] = 0
-if "results" not in st.session_state:
-    st.session_state["results"] = {}   # 학생별 결과 저장 dict
-
-# ===== 문제 표시 =====
-for i, (a, b, c, answer) in enumerate(st.session_state["problems"]):
-    st.markdown(f'<p class="problem-font">{i+1}: {a} + {b} + {c} = ?</p>', unsafe_allow_html=True)
-    st.session_state["answers"][i] = st.text_input(
-        f"{i+1}번 답",
-        value=st.session_state["answers"][i],
-        key=f"q{i}_{st.session_state['round']}"
-    )
-
-# ===== 채점하기 =====
-if st.button("✅ 채점하기") and student_id.strip() != "":
-    st.session_state["checked"] = True
-
-if st.session_state["checked"] and student_id.strip() != "":
-    score = 0
-    attempt_results = []
-
-    for i, (a, b, c, answer) in enumerate(st.session_state["problems"]):
-        user_ans = st.session_state
+            if nums
