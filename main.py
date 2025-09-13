@@ -45,7 +45,7 @@ def generate_problem():
     y = 10 - x
     z = random.randint(1, 9)
     nums = [x, y, z]
-    random.shuffle(nums)  # 위치 랜덤
+    random.shuffle(nums)  # 위치 섞기
     return nums[0], nums[1], nums[2], sum(nums)
 
 def make10_hint(a, b, c):
@@ -61,6 +61,7 @@ def make10_hint(a, b, c):
 st.session_state.setdefault("problems", [generate_problem() for _ in range(4)])
 st.session_state.setdefault("answers", [""] * 4)
 st.session_state.setdefault("checked", False)
+st.session_state.setdefault("round", 0)  # 새 문제 시도할 때마다 증가
 
 # ===== 문제 표시 =====
 for i, (a, b, c, answer) in enumerate(st.session_state.problems):
@@ -68,7 +69,7 @@ for i, (a, b, c, answer) in enumerate(st.session_state.problems):
     st.session_state.answers[i] = st.text_input(
         f"{i+1}번 답",
         value=st.session_state.answers[i],
-        key=f"q{i}"
+        key=f"q{i}_{st.session_state.round}"  # round를 키에 추가해서 초기화 효과
     )
 
 # ===== 채점하기 =====
@@ -92,4 +93,5 @@ if st.session_state.checked:
         st.session_state.problems = [generate_problem() for _ in range(4)]
         st.session_state.answers = [""] * 4
         st.session_state.checked = False
-        st.experimental_rerun()
+        st.session_state.round += 1  # 라운드 증가 → 입력창 초기화
+        st.rerun()
