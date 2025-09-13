@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="10을 만들고 더하기 연습", page_icon="🔟", layout="centered")
 
-# ===== 스타일 지정 =====
+# ===== 스타일 =====
 st.markdown("""
     <style>
     body {
@@ -32,7 +32,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ===== 제목 =====
 st.markdown('<p class="big-font">🔟 10을 만들고 더하기 연습</p>', unsafe_allow_html=True)
 st.write("세 수를 더할 때, **10을 먼저 만들고 더하는 방법**을 연습해 보아요! 🌈✨")
 
@@ -52,11 +51,10 @@ def make10_hint(a, b, c):
                 return f"👉 {nums[i]} + {nums[j]} = 10, 그리고 10 + {rest} = {10+rest}"
     return "👉 가까운 수끼리 더해서 10을 먼저 만들어 보세요!"
 
-# ===== 문제 준비 =====
-if "problems" not in st.session_state:
-    st.session_state.problems = [generate_problem() for _ in range(4)]
-    st.session_state.answers = [""] * 4
-    st.session_state.checked = False
+# ===== 세션 상태 안전 초기화 =====
+st.session_state.setdefault("problems", [generate_problem() for _ in range(4)])
+st.session_state.setdefault("answers", [""] * 4)
+st.session_state.setdefault("checked", False)
 
 # ===== 문제 표시 =====
 for i, (a, b, c, answer) in enumerate(st.session_state.problems):
@@ -74,4 +72,18 @@ if st.button("✅ 채점하기"):
 if st.session_state.checked:
     score = 0
     for i, (a, b, c, answer) in enumerate(st.session_state.problems):
-        user_ans = st.session_state.ans
+        user_ans = st.session_state.answers[i]
+        if user_ans.strip().isdigit() and int(user_ans) == answer:
+            st.success(f"문제 {i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
+            score += 1
+        else:
+            st.error(f"문제 {i+1}: 틀렸어요 😢 (정답: {answer})")
+        st.info(make10_hint(a, b, c))
+
+    st.markdown(f'<p class="big-font">👉 총점: {score} / 4</p>', unsafe_allow_html=True)
+
+    if st.button("🔄 새 문제 풀기"):
+        st.session_state.problems = [generate_problem() for _ in range(4)]
+        st.session_state.answers = [""] * 4
+        st.session_state.checked = False
+        st.experimental_rerun()
