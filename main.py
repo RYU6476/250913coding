@@ -56,4 +56,23 @@ def make10_hint(a, b, c):
     nums = [a, b, c]
     for i in range(3):
         for j in range(i+1, 3):
-            if nums
+            if nums[i] + nums[j] == 10:   # 👈 반드시 콜론(:) 있어야 함
+                rest = [n for k, n in enumerate(nums) if k not in [i, j]][0]
+                return f"👉 {nums[i]} + {nums[j]} = 10, 그리고 10 + {rest} = {10+rest}"
+    return "👉 두 수를 먼저 더해서 10을 만들어 보세요!"
+
+# ===== 세션 상태 초기화 =====
+if "problems" not in st.session_state:
+    st.session_state["problems"] = [generate_problem() for _ in range(4)]
+if "answers" not in st.session_state:
+    st.session_state["answers"] = [""] * 4
+if "checked" not in st.session_state:
+    st.session_state["checked"] = False
+if "round" not in st.session_state:
+    st.session_state["round"] = 0
+if "results" not in st.session_state:
+    st.session_state["results"] = {}   # 학생별 결과 저장 dict
+
+# ===== 문제 표시 =====
+for i, (a, b, c, answer) in enumerate(st.session_state["problems"]):
+    st.markdown(f
