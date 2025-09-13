@@ -77,4 +77,19 @@ if st.button("✅ 채점하기"):
 
 if st.session_state.checked:
     score = 0
-    for i, (a,
+    for i, (a, b, c, answer) in enumerate(st.session_state.problems):
+        user_ans = st.session_state.answers[i]
+        if user_ans.strip().isdigit() and int(user_ans) == answer:
+            st.success(f"{i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
+            score += 1
+        else:
+            st.error(f"{i+1}: 틀렸어요 😢 (정답: {answer})")
+        st.info(make10_hint(a, b, c))
+
+    st.markdown(f'<p class="big-font">👉 총점: {score} / 4</p>', unsafe_allow_html=True)
+
+    if st.button("🔄 새 문제 풀기"):
+        st.session_state.problems = [generate_problem() for _ in range(4)]
+        st.session_state.answers = [""] * 4
+        st.session_state.checked = False
+        st.experimental_rerun()
