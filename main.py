@@ -1,48 +1,52 @@
 import streamlit as st
-import pandas as pd
-import altair as alt
-import os
+import random
 
-# 앱 제목
-st.title("🌍 MBTI 유형별 국가 Top 10 시각화")
+st.set_page_config(page_title="세 수의 덧셈 연습", page_icon="🧮", layout="centered")
 
-# 기본 파일 경로
-file_path = "countriesMBTI_16types.csv"
+st.title("🧮 세 수의 덧셈 연습")
+st.write("초등학교 1학년을 위한 **세 수 덧셈 연습** 페이지예요! ✨")
 
-# 데이터 불러오기
-if os.path.exists(file_path):
-    df = pd.read_csv(file_path)
-    st.success("기본 데이터 파일을 불러왔습니다.")
-else:
-    uploaded_file = st.file_uploader("CSV 파일 업로드", type=["csv"])
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.success("업로드한 파일을 불러왔습니다.")
-    else:
-        st.info("CSV 파일을 업로드하거나 기본 데이터를 같은 폴더에 두세요.")
-        st.stop()
+# 문제 생성 함수
+def generate_problem():
+    a = random.randint(1, 9)
+    b = random.randint(1, 9)
+    c = random.randint(1, 9)
+    return a, b, c, a + b + c
 
-# MBTI 유형 선택
-mbti_types = [col for col in df.columns if col != "Country"]
-selected_type = st.selectbox("MBTI 유형을 선택하세요:", mbti_types)
+# 4문제 생성
+if "problems" not in st.session_state:
+    st.session_state.problems = [generate_problem() for _ in range(4)]
+    st.session_state.answers = [""] * 4
+    st.session_state.checked = False
 
-# Top 10 추출
-top10 = df.sort_values(by=selected_type, ascending=False).head(10)
+# 문제 보여주기
+for i, (a, b, c, answer) in enumerate(st.session_state.problems):
+    st.subheader(f"문제 {i+1}")
+    st.write(f"{a} + {b} + {c} = ?")
+    st.session_state.answers[i] = st.text_input(f"답 입력 (문제 {i+1})", 
+                                                value=st.session_state.answers[i], 
+                                                key=f"q{i}")
 
-# Altair 차트 생성
-chart = (
-    alt.Chart(top10)
-    .mark_bar()
-    .encode(
-        x=alt.X(selected_type, title="비율", scale=alt.Scale(domain=[0, top10[selected_type].max() * 1.1])),
-        y=alt.Y("Country", sort="-x", title="국가"),
-        tooltip=["Country", selected_type]
-    )
-    .properties(width=600, height=400, title=f"{selected_type} 유형 비율 Top 10 국가")
-    .interactive()
-)
+# 채점 버튼
+if st.button("✅ 채점하기"):
+    st.session_state.checked = True
 
-st.altair_chart(chart, use_container_width=True)
+# 채점 결과 표시
+if st.session_state.checked:
+    score = 0
+    for i, (a, b, c, answer) in enumerate(st.session_state.problems):
+        user_ans = st.session_state.answers[i]
+        if user_ans.strip().isdigit() and int(user_ans) == answer:
+            st.success(f"문제 {i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
+            score += 1
+        else:
+            st.error(f"문제 {i+1}: 틀렸어요 😢 (정답: {answer})")
 
-# 데이터프레임도 함께 표시
-st.dataframe(top10.reset_index(drop=True))
+    st.subheader(f"👉 총점: {score} / 4")
+
+    # 새로운 문제 생성 버튼
+    if st.button("🔄 새 문제 풀기"):
+        st.session_state.problems = [generate_problem() for _ in range(4)]
+        st.session_state.answers = [""] * 4
+        st.session_state.checked = False
+        st.experimental_rerun()
