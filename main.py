@@ -20,7 +20,7 @@ st.markdown("""
     .stTextInput>div>div>input {
         font-size: 32px !important;
         height: 80px;
-        width: 250px;
+        width: 280px;
         text-align: center;
         border: 3px solid #555;
         border-radius: 10px;
@@ -45,7 +45,7 @@ def generate_problem():
     y = 10 - x
     z = random.randint(1, 9)
     nums = [x, y, z]
-    random.shuffle(nums)  # 위치 랜덤 섞기
+    random.shuffle(nums)  # 위치 랜덤
     return nums[0], nums[1], nums[2], sum(nums)
 
 def make10_hint(a, b, c):
@@ -66,8 +66,8 @@ st.session_state.setdefault("checked", False)
 for i, (a, b, c, answer) in enumerate(st.session_state.problems):
     st.markdown(f'<p class="problem-font">{i+1}: {a} + {b} + {c} = ?</p>', unsafe_allow_html=True)
     st.session_state.answers[i] = st.text_input(
-        f"{i+1}번 답", 
-        value=st.session_state.answers[i], 
+        f"{i+1}번 답",
+        value=st.session_state.answers[i],
         key=f"q{i}"
     )
 
@@ -77,14 +77,4 @@ if st.button("✅ 채점하기"):
 
 if st.session_state.checked:
     score = 0
-    for i, (a, b, c, answer) in enumerate(st.session_state.problems):
-        user_ans = st.session_state.answers[i]
-        if user_ans.strip().isdigit() and int(user_ans) == answer:
-            st.success(f"{i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
-            score += 1
-        else:
-            st.error(f"{i+1}: 틀렸어요 😢 (정답: {answer})")
-        st.info(make10_hint(a, b, c))
-
-    st.markdown(f'<p class="big-font">👉 총점: {score} / 4</p>', unsafe_allo_
-
+    for i, (a,
