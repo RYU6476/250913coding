@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import pandas as pd
 
 st.set_page_config(page_title="10을 만들고 더하기 연습", page_icon="🔟", layout="centered")
 
@@ -36,10 +37,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ===== 학생 번호 입력 =====
+student_id = st.text_input("🧑‍🎓 학생 번호를 입력하세요:", key="student_id")
+
 st.markdown('<p class="big-font">🔟 10을 만들고 더하기 연습</p>', unsafe_allow_html=True)
 st.write("두 수를 먼저 더해서 10을 만든 뒤, 남은 수를 더해 보아요! 🌈✨")
 
-# ===== 문제 생성 함수 (반드시 두 수가 10) =====
+# ===== 문제 생성 함수 =====
 def generate_problem():
     x = random.randint(1, 9)
     y = 10 - x
@@ -61,7 +65,8 @@ def make10_hint(a, b, c):
 st.session_state.setdefault("problems", [generate_problem() for _ in range(4)])
 st.session_state.setdefault("answers", [""] * 4)
 st.session_state.setdefault("checked", False)
-st.session_state.setdefault("round", 0)  # 새 문제 시도할 때마다 증가
+st.session_state.setdefault("round", 0)  
+st.session_state.setdefault("results", {})  # 학생별 결과 저장 dict
 
 # ===== 문제 표시 =====
 for i, (a, b, c, answer) in enumerate(st.session_state.problems):
@@ -69,29 +74,42 @@ for i, (a, b, c, answer) in enumerate(st.session_state.problems):
     st.session_state.answers[i] = st.text_input(
         f"{i+1}번 답",
         value=st.session_state.answers[i],
-        key=f"q{i}_{st.session_state.round}"  # round를 키에 추가해서 초기화 효과
+        key=f"q{i}_{st.session_state.round}"
     )
 
 # ===== 채점하기 =====
-if st.button("✅ 채점하기"):
+if st.button("✅ 채점하기") and student_id.strip() != "":
     st.session_state.checked = True
 
-if st.session_state.checked:
+if st.session_state.checked and student_id.strip() != "":
     score = 0
+    attempt_results = []
+
     for i, (a, b, c, answer) in enumerate(st.session_state.problems):
         user_ans = st.session_state.answers[i]
-        if user_ans.strip().isdigit() and int(user_ans) == answer:
+        correct = user_ans.strip().isdigit() and int(user_ans) == answer
+
+        if correct:
             st.success(f"{i+1}: 정답! 🎉 ({a}+{b}+{c}={answer})")
             score += 1
         else:
             st.error(f"{i+1}: 틀렸어요 😢 (정답: {answer})")
+
         st.info(make10_hint(a, b, c))
+
+        # 시도 기록 저장
+        attempt_results.append({
+            "문제번호": i+1,
+            "문제": f"{a}+{b}+{c}",
+            "학생답": user_ans,
+            "정답": answer,
+            "채점": "O" if correct else "X"
+        })
 
     st.markdown(f'<p class="big-font">👉 총점: {score} / 4</p>', unsafe_allow_html=True)
 
-    if st.button("🔄 새 문제 풀기"):
-        st.session_state.problems = [generate_problem() for _ in range(4)]
-        st.session_state.answers = [""] * 4
-        st.session_state.checked = False
-        st.session_state.round += 1  # 라운드 증가 → 입력창 초기화
-        st.rerun()
+    # 학생별 기록 저장
+    if student_id not in st.session_state.results:
+        st.session_state.results[student_id] = []
+
+    st.session_state.re_
